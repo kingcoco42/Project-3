@@ -1,0 +1,3 @@
+Team Name: Group 69
+Team Members: Luke Phommachanh, Victer Qiu, John Ziska
+Project Title: NBA Neighborhoods – A Nearest-Neighbors Analysis of NBA Players
