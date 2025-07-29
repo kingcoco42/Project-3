@@ -1,3 +1,36 @@
+Administrative
+
 Team Name: Group 69
-Team Members: Luke Phommachanh, Victer Qiu, John Ziska
+Team Members + Github usernames: Luke Phommachanh (lukephommachanh), Victer Qiu (VicterQ), John Ziska (kingcoco42).
 Project Title: NBA Neighborhoods – A Nearest-Neighbors Analysis of NBA Players
+Link to GitHub repo: https://github.com/kingcoco42/Project-3.git
+Link to Video demo:
+
+Extended and Refined Proposal
+
+Problem: What problem are we trying to solve?
+Motivation: Why is this a problem?
+Features implemented
+Description of data
+Tools/Languages/APIs/Libraries used
+Algorithms Imlemented
+Additional Data Structures/Algorithms used
+Distribution of Responsibility and Roles: Who did what?
+
+Analysis
+
+Any changes the group made after the proposal? The rationale behind the changes.
+Big O worst case time complexity analysis of the major functions/features you implemented
+
+Reflection
+
+As a group, how was the overall experience of the project?
+Did you have any challenges? If so, describe.
+If you were to start again as a group, any changes you would make to the project and/or workflow?
+Commenet on what each of the members learned thorugh this process.
+
+References
+K-Nearest Neighbors: https://www.geeksforgeeks.org/machine-learning/k-nearest-neighbours/
+Approximate Nearest Neighbors: https://www.geeksforgeeks.org/machine-learning/approximate-nearest-neighbor-ann-search/
+KD Trees: https://opendsa-server.cs.vt.edu/ODSA/Books/CS3/html/KDtree.html
+
