@@ -18,14 +18,12 @@ h1, h2 {
 /* FORM LAYOUT */
 .search-form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   background: var(--form-bg);
   padding: 1rem;
   border: 1px solid var(--border);
-  max-width: 450px;
-  width: 100%;
-  margin: 0 auto;
+  max-width: 375px;
+  max-height: 245px;
 }
 
 .field-name {
@@ -39,8 +37,8 @@ h1, h2 {
 
 .profile-group {
   border: 1px solid var(--border);
-  margin-right: 0.7rem;
   padding: 1rem;
+  font-size: 16px;
 }
 .profile-group legend {
   font-weight: bold;
@@ -48,7 +46,6 @@ h1, h2 {
 
 .exact-toggle {
   grid-column: 2;
-  align-self: encenterd;
   margin-top: -8rem;
   font-size: 14px
 }
@@ -60,11 +57,9 @@ h1, h2 {
 }
 .btn-search {
   grid-column: 2;
-  width: 100%;
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
-  font-size: 1.2rem;
-  cursor: pointer;
+  font-size: 20px;
   align-self: center;
   padding: 1rem;
   margin-top: -7.5rem;
@@ -72,7 +67,6 @@ h1, h2 {
 
 /* TABLE STYLES */
 .results-table {
-  width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
 }
@@ -87,7 +81,7 @@ h1, h2 {
 .results-table th {
   background: var(--th-bg);
   text-transform: uppercase;
-  font-size: 0.9rem;
+  font-size: 15px;
 }
 
 /* LIGHT / DARK VARIABLES */
