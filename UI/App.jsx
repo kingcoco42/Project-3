@@ -1,4 +1,3 @@
-// App.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -10,13 +9,14 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState('');
   const [groupSize, setGroupSize] = useState(5);
   const [exactSearch, setExactSearch] = useState(false);
+  const [featureNames, setFeatureNames] = useState([]);
 
   // table data state
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  function toggleProfile(key, e) {
+  const toggleProfile = (key, e) => {
     if (selectedProfile === key) {
       setSelectedProfile('');
     } else {
@@ -31,8 +31,9 @@ function App() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('Exact Search?', exactSearch);
-
+    setLoading(true);
+    //console.log('Exact Search?', exactSearch);
+    
     axios.post('http://localhost:8080/api/similar', {
       player_name: playerName,
       feature_group: selectedProfile.toLowerCase(),
@@ -44,6 +45,7 @@ function App() {
         console.log('API Response:', res.data);
         if (res.data.success) {
           setResults(res.data.data);
+          setFeatureNames(res.data.metadata.features || []);
         } else {
           setError('Failed to get results');
         }
@@ -88,7 +90,7 @@ function App() {
 
         <fieldset className="field profile-group">
           <legend>Select Desired Profile</legend>
-          {['Scoring', 'Defense','Advanced', 'Traditional', 'Overall'].map((key, i) => (
+          {['Scoring', 'Defense','Impact', 'Traditional'].map((key, i) => (
             <div key={key}>
               <label key={key}>
                 <input
@@ -143,16 +145,16 @@ function App() {
       {/* --- RESULTS TABLE --- */}
       {results.length > 0 && (
         <>
-          <h2>Results {selectedProfile}</h2>
+          <h2>{selectedProfile} Results</h2>
           <table className="results-table">
             <thead>
               <tr>
                 <th>Player Name</th>
                 <th>Season</th>
                 <th>Similarity</th>
-                {results[0].metrics && results[0].map((_, i) => (
-                  <th key={i}>Metric {i + 1}</th>
-                ))}
+                  {featureNames.map((featureName, i) => (
+                  <th key={i}>{featureName}</th>
+              ))}
               </tr>
             </thead>
             <tbody>
@@ -160,7 +162,6 @@ function App() {
                 <tr key={ri} style={row.is_target ? {backgroundColor:'#e8f4fd'} : {}}>
                   <td>
                     {row.player}
-                    {row.is_target && <span style={{color: '#007bff'}}> (Target)</span>}
                   </td>
                   <td>{row.season}</td>
                   <td>{row.is_target ? 'Target' : (row.similarity || 'N/A')}</td>
