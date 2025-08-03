@@ -1,4 +1,5 @@
 from playerSimilarity import NBAPlayerSimilarity
+import time
 
 
 def main():
@@ -9,39 +10,114 @@ def main():
 
     while True:
         print("\nOptions:")
-        print("1. Find similar players")
-        print("2. List available feature groups")
-        print("3. Exit")
+        print("1. Find similar players (Exact KNN)")
+        print("2. Find similar players (Approximate ANN)")
+        print("3. Compare KNN vs ANN methods")
+        print("4. List available feature groups")
+        print("5. Exit")
 
-        choice = input("\nEnter your choice (1-3): ").strip()
+        choice = input("\nEnter your choice (1-5): ").strip()
 
         if choice == '1':
-            find_similar_players(nba_sim)
+            find_similar_players(nba_sim, exact=True)
         elif choice == '2':
-            list_feature_groups(nba_sim)
+            find_similar_players(nba_sim, exact=False)
         elif choice == '3':
+            compare_methods(nba_sim)
+        elif choice == '4':
+            list_feature_groups(nba_sim)
+        elif choice == '5':
             print("Goodbye!")
             break
         else:
             print("Invalid choice. Please try again.")
 
 
-def find_similar_players(nba_sim):
-    print("\nFind Similar Players")
-    print("-------------------")
+def find_similar_players(nba_sim, exact=True):
+    method = "Exact KNN" if exact else "Approximate ANN"
+    print(f"\nFind Similar Players ({method})")
+    print("-------------------" + "-" * len(method))
 
     player_name = input("Enter player name: ").strip()
     if not player_name:
         print("Player name cannot be empty!")
         return
 
-    year = None
-    year_input = input("Enter year (optional, press Enter to skip): ").strip()
-    if year_input:
+    season = None
+    season_input = input("Enter season year (e.g., 2022, optional): ").strip()
+    if season_input:
         try:
-            year = int(year_input)
+            season = int(season_input)
         except ValueError:
-            print("Invalid year. Must be a number.")
+            print("Invalid season. Must be a number (e.g., 2022).")
+            return
+
+    print("\nAvailable feature groups:")
+    for i, group in enumerate(nba_sim.feature_groups.keys(), 1):
+        print(f"{i}. {group}")
+
+    group_choice = input("\nSelect feature group (1-5): ").strip()
+    try:
+        group_idx = int(group_choice) - 1
+        feature_group = list(nba_sim.feature_groups.keys())[group_idx]
+    except (ValueError, IndexError):
+        print("Invalid choice. Using default 'scoring'.")
+        feature_group = 'scoring'
+
+    k = input("\nNumber of similar players to find (default 5): ").strip()
+    try:
+        k = int(k) if k else 5
+    except ValueError:
+        print("Invalid number. Using default 5.")
+        k = 5
+
+    start_time = time.time()
+    try:
+        similar_players = nba_sim.find_similar_players(
+            player_name=player_name,
+            feature_group=feature_group,
+            k=k,
+            season=season,
+            exact=exact
+        )
+        search_time = time.time() - start_time
+
+        print(f"\nPlayers similar to {player_name}", end="")
+        if season:
+            print(f" in {season}", end="")
+        print(f" ({feature_group} profile) using {method} ({search_time:.4f}s):\n")
+
+        for i, player in enumerate(similar_players, 1):
+            print(f"{i}. {player['player']} ({player['season']}) - Similarity: {1 / (1 + player['distance']):.2f}")
+            print("   Raw Stats (Normalized Stats):")
+            for stat in player['raw_stats']:
+                raw_val = player['raw_stats'][stat]
+                norm_val = player['norm_stats'].get(stat, 'N/A')
+                print(f"   - {stat}: {raw_val:.2f} ({norm_val:.2f})")
+            print()
+
+    except ValueError as e:
+        print(f"\nError: {e}")
+    except Exception as e:
+        print(f"\nAn unexpected error occurred: {e}")
+
+
+def compare_methods(nba_sim):
+    print("\nCompare KNN vs ANN Performance")
+    print("----------------------------")
+
+    player_name = input("Enter player name: ").strip()
+    if not player_name:
+        print("Player name cannot be empty!")
+        return
+
+    season = None
+    season_input = input("Enter season year (e.g., 2022, optional): ").strip()
+    if season_input:
+        try:
+            season = int(season_input)
+        except ValueError:
+            print("Invalid season. Must be a number (e.g., 2022).")
             return
 
     print("\nAvailable feature groups:")
@@ -63,35 +139,63 @@ def find_similar_players(nba_sim):
         print("Invalid number. Using default 5.")
         k = 5
 
-    search_method = input("\nUse exact search? (y/n, default n): ").strip().lower()
-    exact = search_method == 'y'
+    # Get target player's stats for reference
+    mask = (nba_sim.player_info['PLAYER_NAME'] == player_name)
+    if season:
+        mask &= (nba_sim.player_info['SEASON_YEAR'] == season)
+    target_info = nba_sim.player_info[mask]
 
-    try:
-        similar_players = nba_sim.find_similar_players(
+    if target_info.empty:
+        print(f"Player {player_name} not found{'' if not season else f' in season {season}'}")
+        return
+
+    target_id = target_info['player_id'].values[0]
+    target_raw = nba_sim.feature_data[feature_group]['raw'][target_id]
+    target_norm = nba_sim.feature_data[feature_group]['scaled'][target_id]
+
+    print("\n=== Target Player Stats ===")
+    print(f"{player_name} ({season if season else 'all seasons'}):")
+    for stat in target_raw:
+        print(f"   - {stat}: {target_raw[stat]:.2f} ({target_norm[list(target_raw.keys()).index(stat)]:.2f})")
+
+    # Run comparisons
+    comparison = {
+        'knn': {'time': 0, 'results': []},
+        'ann': {'time': 0, 'results': []}
+    }
+
+    for method in ['knn', 'ann']:
+        start = time.time()
+        results = nba_sim.find_similar_players(
             player_name=player_name,
             feature_group=feature_group,
             k=k,
-            season=year,
-            exact=exact
+            season=season,
+            exact=(method == 'knn')
         )
+        comparison[method]['time'] = time.time() - start
+        comparison[method]['results'] = results
 
-        print(f"\nPlayers similar to {player_name}", end="")
-        if year:
-            print(f" in {year}", end="")
-        print(f" ({feature_group} profile):\n")
+    # Create sets of (player_name, season) tuples for proper comparison
+    knn_players = set((p['player'], p['season']) for p in comparison['knn']['results'])
+    ann_players = set((p['player'], p['season']) for p in comparison['ann']['results'])
+    common_players = len(knn_players & ann_players)
 
-        for i, player in enumerate(similar_players, 1):
+    print("\n=== Results Comparison ===")
+    for method in ['knn', 'ann']:
+        print(f"\n{'Exact KNN' if method == 'knn' else 'Approximate ANN'} - {comparison[method]['time']:.4f}s")
+        for i, player in enumerate(comparison[method]['results'], 1):
             print(f"{i}. {player['player']} ({player['season']}) - Similarity: {1 / (1 + player['distance']):.2f}")
-            for stat, value in player['raw_stats'].items():
-                print(f"   {stat}: {value:.2f}")
-            print()
+            print("   Raw Stats (Normalized Stats):")
+            for stat in player['raw_stats']:
+                raw_val = player['raw_stats'][stat]
+                norm_val = player['norm_stats'].get(stat, 'N/A')
+                print(f"   - {stat}: {raw_val:.2f} ({norm_val:.2f})")
 
-        print(f"Search method: {'Exact KD-Tree' if exact else 'Approximate ANN'}")
-
-    except ValueError as e:
-        print(f"\nError: {e}")
-    except Exception as e:
-        print(f"\nAn unexpected error occurred: {e}")
+    print(f"\n=== Comparison Metrics ===")
+    print(f"Common players in top {k}: {common_players}/{k}")
+    print(f"Speed ratio: {comparison['knn']['time'] / comparison['ann']['time']:.1f}x faster")
+    print(f"ANN found {100 * common_players / k:.0f}% of KNN results")
 
 
 def list_feature_groups(nba_sim):

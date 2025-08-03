@@ -37,7 +37,7 @@ class KDTree:
         self.root = build_loop(list(zip(points, player_ids)))  # call recursive function again
         self.size = len(points)
 
-    def find_nearest_neighbors(self, target, k=5):  # default nearest neighbors = 5
+    def find_nearest_neighbors(self, target, k=5):
         if not self.root:
             return []
 
@@ -48,23 +48,21 @@ class KDTree:
                 return
 
             axis = depth % self.dimensions
-            distance = np.linalg.norm(np.array(target) - np.array(node.point))  # euclidean distance
+            distance = np.linalg.norm(np.array(target) - np.array(node.point))
 
-            # maintain list of k-nearest neighbors
-            if len(neighbors) < k:  # list has less than k items so new item automatically added
+            if len(neighbors) < k:
                 heapq.heappush(neighbors, (-distance, node.player_id, node.point))
-            elif distance < -neighbors[0][0]:  # new item is now one of the k-nearest neighbors, pops furthest neighbor
+            elif distance < -neighbors[0][0]:
                 heapq.heappop(neighbors)
                 heapq.heappush(neighbors, (-distance, node.player_id, node.point))
 
-            # insertion into kd tree (compares stats along current axis)
             if target[axis] < node.point[axis]:
                 search(node.left, depth + 1)
-                if (node.point[axis] - target[axis]) ** 2 < -neighbors[0][0]:
+                if (node.point[axis] - target[axis]) ** 2 < -neighbors[0][0] if neighbors else float('inf'):
                     search(node.right, depth + 1)
             else:
                 search(node.right, depth + 1)
-                if (target[axis] - node.point[axis]) ** 2 < -neighbors[0][0]:
+                if (target[axis] - node.point[axis]) ** 2 < -neighbors[0][0] if neighbors else float('inf'):
                     search(node.left, depth + 1)
 
         search(self.root)
