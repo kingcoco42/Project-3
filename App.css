@@ -1,0 +1,114 @@
+/* App.css */
+.App {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+/* FORM LAYOUT */
+.search-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background: var(--form-bg);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.field-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  margin-bottom: 0.25rem;
+}
+
+.profile-group {
+  border: 1px solid var(--border);
+  margin-right: 0.7rem;
+  padding: 1rem;
+}
+.profile-group legend {
+  font-weight: bold;
+}
+
+.exact-toggle {
+  grid-column: 2;
+  align-self: encenterd;
+  margin-top: -8rem;
+  font-size: 14px
+}
+
+.exact-subtext {
+  display: block;
+  margin-left: 1.8rem;
+
+}
+.btn-search {
+  grid-column: 2;
+  width: 100%;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-self: center;
+  padding: 1rem;
+  margin-top: -7.5rem;
+}
+
+/* TABLE STYLES */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.results-table th {
+  background: var(--th-bg);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+/* LIGHT / DARK VARIABLES */
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --form-bg: #f9f9f9;
+  --border: #ccc;
+  --btn-bg: #d4f0d4;
+  --btn-border: #a0d0a0;
+  --th-bg: #eee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --fg: #e0e0e0;
+    --form-bg: #1e1e1e;
+    --border: #444;
+    --btn-bg: #2e7d32;
+    --btn-border: #388e3c;
+    --th-bg: #333;
+  }
+}
