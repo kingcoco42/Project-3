@@ -40,7 +40,7 @@ class ANNSearch:
 
         candidate_distances = []
         for idx in candidates:
-            dist = np.linalg.norm(target - self.points[idx])  # euclidean distance
+            dist = np.linalg.norm(target - self.points[idx])
             candidate_distances.append((dist, self.player_ids[idx], self.points[idx]))
 
         return sorted(candidate_distances)[:k]
