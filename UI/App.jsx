@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   // input stuff
   const [playerName, setPlayerName] = useState(''); // inputted name
+  const [playerOptions, setPlayerOptions] = useState([]); // auto fill
   const [selectedProfile, setSelectedProfile] = useState(''); // selected profile
   const [featureNames, setFeatureNames] = useState([]); // profile criteria
   const [year, setYear] = useState(''); // inputed year
@@ -24,8 +25,8 @@ function App() {
     } else {
       setSelectedProfile(key); // if not the same update
     }
+
   }
-  
   function formatSeason(s) { // if an year is inputted, it shows as the year 20xy instead of 20xy-yz
     const year = Number(s);
     if (!isNaN(year)) {
@@ -35,12 +36,21 @@ function App() {
     return s; // for the others already the right format
   }
 
+  useEffect(() => { // auto fill using names from a set of names
+    axios.get('http://localhost:8080/api/players') // get list of names from
+      .then(res => setPlayerOptions(res.data.players || []))
+      .catch(e => console.error(e));
+  }, []);
+
   function handleSubmit(e) { // search button clicked
     e.preventDefault(); // no default options
     setError(''); // resets any error messages each time the button is clicked
     //console.log('Exact Search?', exactSearch);
     setLoading(true); // show Searching 
+
     //console.log('year', year);
+
+
     axios.post('http://localhost:8080/api/similar', { // send to backend
       player_name: playerName,
       feature_group: selectedProfile.toLowerCase(),
@@ -67,6 +77,7 @@ function App() {
         setError('An error occurred');
         setLoading(false);
     });
+    
   };
 
   return (
@@ -77,9 +88,10 @@ function App() {
       <form className="search-form" onSubmit={handleSubmit}>
         {/* Player name */ }
         <div className="field"> 
-          <label>Enter Player Name</label>
+          <label htmlFor="playerName">Enter Player Name</label>
           <input
             type="text"
+            list="players-list"
             value={playerName}
             onChange={e => setPlayerName(e.target.value)}
             required
@@ -87,6 +99,11 @@ function App() {
             onInput={e => e.target.setCustomValidity('')}
             placeholder='e.g. LeBron James'
           />
+          <datalist id="players-list">
+            {playerOptions.map((name, i) => (
+              <option key={i} value={name} />
+            ))}
+          </datalist>
         </div>
         {/* Year */}
         <div className="field">
@@ -96,7 +113,7 @@ function App() {
             value={year}
             onChange={e => setYear(e.target.value)}
             placeholder="e.g. 2023 for 2023-24"
-            min="2000" // this is the earliest data poitns we have
+            min="1996" // this is the earliest data poitns we have
           />
         </div>
         {/* Radios selection */}
@@ -173,7 +190,7 @@ function App() {
             </thead>
             <tbody>
               {results.map((row, ri) => (
-                <tr key={ri} style={row.is_target ? {backgroundColor:'#e8f4fd'} : {}}>
+                <tr key={ri} className={row.is_target ? 'target-row' : {}}>
                   <td>
                     {row.player}
                   </td>
