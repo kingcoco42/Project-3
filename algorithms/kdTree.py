@@ -47,15 +47,17 @@ class KDTree:
             if not node:
                 return
 
-            axis = depth % self.dimensions
-            distance = np.linalg.norm(np.array(target) - np.array(node.point))
+            axis = depth % self.dimensions  # cycle through dimensions
+            distance = np.linalg.norm(np.array(target) - np.array(node.point))  # euclidean distance
 
+            # priority queue to handle results -> pop lowest distance first (basically min heap)
             if len(neighbors) < k:
                 heapq.heappush(neighbors, (-distance, node.player_id, node.point))
             elif distance < -neighbors[0][0]:
                 heapq.heappop(neighbors)
                 heapq.heappush(neighbors, (-distance, node.player_id, node.point))
 
+            # recursively search in new dimensions based on where the target is in current dimension
             if target[axis] < node.point[axis]:
                 search(node.left, depth + 1)
                 if (node.point[axis] - target[axis]) ** 2 < -neighbors[0][0] if neighbors else float('inf'):
@@ -67,4 +69,5 @@ class KDTree:
 
         search(self.root)
 
-        return sorted([(-dist, pid, pt) for dist, pid, pt in neighbors])
+        # return distance, player id, point in order
+        return sorted([(-distance, player_id, point) for distance, player_id, point in neighbors])

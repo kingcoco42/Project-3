@@ -17,6 +17,7 @@ class ANNSearch:
             self.random_planes.append(planes)
 
     # generates binary hash key based on where players fall in the randomly generated planes
+    # 1 = above plane, 0 = below plane (based on dot product of point, each plane out of all planes)
     def _hash(self, point, planes):
         return tuple(int(np.dot(point, plane) > 0) for plane in planes)
 
@@ -34,13 +35,14 @@ class ANNSearch:
     def query(self, target, k=5):
         candidates = set()
 
-        for table_idx in range(self.num_tables):
-            hash_key = self._hash(target, self.random_planes[table_idx])
+        for table_idx in range(self.num_tables):  # loop through hash tables
+            hash_key = self._hash(target, self.random_planes[table_idx])  # hash for random dimensions
             candidates.update(self.hash_tables[table_idx].get(hash_key, []))
 
         candidate_distances = []
         for idx in candidates:
-            dist = np.linalg.norm(target - self.points[idx])
+            dist = np.linalg.norm(target - self.points[idx])  # euclidean distance
             candidate_distances.append((dist, self.player_ids[idx], self.points[idx]))
 
+        # return neighbors in order
         return sorted(candidate_distances)[:k]
