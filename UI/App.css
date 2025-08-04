@@ -1,9 +1,6 @@
-/* App.css */
 .App {
-  font-family: sans-serif;
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 2000px;
+  padding:2rem;
   background: var(--bg);
   color: var(--fg);
   display: flex;
@@ -11,19 +8,22 @@
   align-items: center;
 }
 
+
 h1, h2 {
   text-align: center;
 }
 
-/* FORM LAYOUT */
+/* search form */
 .search-form {
   display: grid;
   gap: 1rem;
   background: var(--form-bg);
   padding: 1rem;
   border: 1px solid var(--border);
+  width: 100%;
+  margin: 0 auto;
   max-width: 375px;
-  max-height: 245px;
+  max-height: 270px;
 }
 
 .field-name {
@@ -46,7 +46,7 @@ h1, h2 {
 
 .exact-toggle {
   grid-column: 2;
-  margin-top: -8rem;
+  margin-top: -9.5rem;
   font-size: 14px
 }
 
@@ -61,11 +61,11 @@ h1, h2 {
   border: 1px solid var(--btn-border);
   font-size: 20px;
   align-self: center;
-  padding: 1rem;
-  margin-top: -7.5rem;
+  padding: 1.5rem;
+  margin-top: -8.5rem;
 }
 
-/* TABLE STYLES */
+/* table */
 .results-table {
   border-collapse: collapse;
   margin-top: 1rem;
@@ -83,8 +83,11 @@ h1, h2 {
   text-transform: uppercase;
   font-size: 15px;
 }
+.results-table tr.target-row td {
+  background: var(--tr-ft);
+}
 
-/* LIGHT / DARK VARIABLES */
+/* light mode and dark mode */
 :root {
   --bg: #fff;
   --fg: #000;
@@ -93,16 +96,18 @@ h1, h2 {
   --btn-bg: #d4f0d4;
   --btn-border: #a0d0a0;
   --th-bg: #eee;
+  --tr-ft: #e8f4fd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121212;
+    --bg: #242424;
     --fg: #e0e0e0;
     --form-bg: #1e1e1e;
     --border: #444;
     --btn-bg: #2e7d32;
     --btn-border: #388e3c;
     --th-bg: #333;
+    --tr-ft: #033052;
   }
 }
