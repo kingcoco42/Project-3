@@ -24,14 +24,8 @@ function App() {
     } else {
       setSelectedProfile(key); // if not the same update
     }
-/*
-    const form = e.target.form;
-    if (form) {
-      const radioButtons = form.querySelectorAll('input[name="profile"]');
-      radioButtons.forEach(radio => radio.setCustomValidity(''));
-    }
-      */
   }
+  
   function formatSeason(s) { // if an year is inputted, it shows as the year 20xy instead of 20xy-yz
     const year = Number(s);
     if (!isNaN(year)) {
@@ -46,10 +40,7 @@ function App() {
     setError(''); // resets any error messages each time the button is clicked
     //console.log('Exact Search?', exactSearch);
     setLoading(true); // show Searching 
-
     //console.log('year', year);
-
-
     axios.post('http://localhost:8080/api/similar', { // send to backend
       player_name: playerName,
       feature_group: selectedProfile.toLowerCase(),
@@ -76,7 +67,6 @@ function App() {
         setError('An error occurred');
         setLoading(false);
     });
-    
   };
 
   return (
