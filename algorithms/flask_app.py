@@ -123,7 +123,7 @@ def find_similar_players():
         print(f"Error in find_similar_players: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/api/players', methods=['GET'])
+@app.route('/api/players', methods=['GET']) # auto fill
 def get_players():
 
     if not nba_sim:
@@ -165,4 +165,5 @@ def get_player_seasons(player_name):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(debug=True, host='0.0.0.0', port=8080)
