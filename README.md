@@ -40,7 +40,7 @@ Then run `npx create-vite`
 - Choose `React` and select `JavaScript`
 - Enter a project name
 
-Change directories to your new file `cd your-project-name` and install dependencies `npm install`
+Change directories to your new file `cd your-project-name` and install dependencies `npm install` and `npm install axios`
 
 Now replace your `src` folder's `App.css` and `App.jsx` with this repo's.
 
