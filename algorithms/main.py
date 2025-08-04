@@ -6,9 +6,9 @@ def main():
     print("NBA Player Similarity Finder")
     print("============================")
 
-    nba_sim = NBAPlayerSimilarity('playerstats.csv')
+    nba_sim = NBAPlayerSimilarity('playerstats.csv')  # initialize class using dataset
 
-    while True:
+    while True:  # menu
         print("\nOptions:")
         print("1. Find similar players (Exact KNN)")
         print("2. Find similar players (Approximate ANN)")
@@ -33,7 +33,7 @@ def main():
             print("Invalid choice. Please try again.")
 
 
-def find_similar_players(nba_sim, exact=True):
+def find_similar_players(nba_sim, exact=True):  # larger method to incorporate NBAPlayerSimilarity class into cmd line
     method = "Exact KNN" if exact else "Approximate ANN"
     print(f"\nFind Similar Players ({method})")
     print("-------------------" + "-" * len(method))
@@ -44,7 +44,7 @@ def find_similar_players(nba_sim, exact=True):
         return
 
     season = None
-    season_input = input("Enter season year (e.g., 2022, optional): ").strip()
+    season_input = input("Enter season year (e.g., 2022, optional): ").strip()  # get season as singular year
     if season_input:
         try:
             season = int(season_input)
@@ -52,26 +52,29 @@ def find_similar_players(nba_sim, exact=True):
             print("Invalid season. Must be a number (e.g., 2022).")
             return
 
-    print("\nAvailable feature groups:")
+    print("\nAvailable feature groups:")  # print comparison options
     for i, group in enumerate(nba_sim.feature_groups.keys(), 1):
         print(f"{i}. {group}")
 
-    group_choice = input("\nSelect feature group (1-5): ").strip()
+    group_choice = input("\nSelect feature group (1-5): ").strip()  # allow choices 1-5
     try:
-        group_idx = int(group_choice) - 1
-        feature_group = list(nba_sim.feature_groups.keys())[group_idx]
+        group_index = int(group_choice) - 1
+        feature_group = list(nba_sim.feature_groups.keys())[group_index]
     except (ValueError, IndexError):
         print("Invalid choice. Using default 'scoring'.")
         feature_group = 'scoring'
 
-    k = input("\nNumber of similar players to find (default 5): ").strip()
+    k = input("\nNumber of similar players to find (default 5): ").strip()  # number of nearest neighbors to find
     try:
-        k = int(k) if k else 5
+        if k:
+            k = int(k)
+        else:
+            k = 5
     except ValueError:
         print("Invalid number. Using default 5.")
         k = 5
 
-    start_time = time.time()
+    start_time = time.time()  # timer
     try:
         similar_players = nba_sim.find_similar_players(
             player_name=player_name,
@@ -82,12 +85,27 @@ def find_similar_players(nba_sim, exact=True):
         )
         search_time = time.time() - start_time
 
+        # Get target player's stats for reference
+        player_and_season = (nba_sim.player_info['PLAYER_NAME'] == player_name)
+        if season:
+            player_and_season &= (nba_sim.player_info['SEASON_YEAR'] == season)
+        target_info = nba_sim.player_info[player_and_season]
+
+        target_id = target_info['player_id'].values[0]
+        target_raw = nba_sim.feature_data[feature_group]['raw'][target_id]
+        target_norm = nba_sim.feature_data[feature_group]['scaled'][target_id]
+
+        print("\n=== Target Player Stats ===")  # user inputted player displayed first
+        print(f"{player_name} ({season if season else 'all seasons'}):")
+        for stat in target_raw:
+            print(f"   - {stat}: {target_raw[stat]:.2f} ({target_norm[list(target_raw.keys()).index(stat)]:.2f})")
+
         print(f"\nPlayers similar to {player_name}", end="")
         if season:
             print(f" in {season}", end="")
-        print(f" ({feature_group} profile) using {method} ({search_time:.4f}s):\n")
+        print(f" ({feature_group} profile) using {method} ({search_time:.4f}s):\n")  # display method, time
 
-        for i, player in enumerate(similar_players, 1):
+        for i, player in enumerate(similar_players, 1):  # print out nearest neighbors' stats as Raw (normalized)
             print(f"{i}. {player['player']} ({player['season']}) - Similarity: {1 / (1 + player['distance']):.2f}")
             print("   Raw Stats (Normalized Stats):")
             for stat in player['raw_stats']:
@@ -102,7 +120,7 @@ def find_similar_players(nba_sim, exact=True):
         print(f"\nAn unexpected error occurred: {e}")
 
 
-def compare_methods(nba_sim):
+def compare_methods(nba_sim):  # contrast KD tree and ANN timing
     print("\nCompare KNN vs ANN Performance")
     print("----------------------------")
 
@@ -120,30 +138,34 @@ def compare_methods(nba_sim):
             print("Invalid season. Must be a number (e.g., 2022).")
             return
 
+    # print similarity feature groups -> scoring, defense, etc.
     print("\nAvailable feature groups:")
     for i, group in enumerate(nba_sim.feature_groups.keys(), 1):
         print(f"{i}. {group}")
 
-    group_choice = input("\nSelect feature group (1-4): ").strip()
+    group_choice = input("\nSelect feature group (1-5): ").strip()
     try:
-        group_idx = int(group_choice) - 1
-        feature_group = list(nba_sim.feature_groups.keys())[group_idx]
-    except (ValueError, IndexError):
-        print("Invalid choice. Using default 'scoring'.")
-        feature_group = 'scoring'
+        group_index = int(group_choice) - 1
+        feature_group = list(nba_sim.feature_groups.keys())[group_index]
+    except (ValueError, IndexError):  # default to traditional comparison
+        print("Invalid choice. Using default 'traditional'.")
+        feature_group = 'traditional'
 
     k = input("\nNumber of similar players to find (default 5): ").strip()
     try:
-        k = int(k) if k else 5
+        if k:
+            k = int(k)
+        else:
+            k = 5
     except ValueError:
         print("Invalid number. Using default 5.")
         k = 5
 
     # Get target player's stats for reference
-    mask = (nba_sim.player_info['PLAYER_NAME'] == player_name)
+    player_and_season = (nba_sim.player_info['PLAYER_NAME'] == player_name)
     if season:
-        mask &= (nba_sim.player_info['SEASON_YEAR'] == season)
-    target_info = nba_sim.player_info[mask]
+        player_and_season &= (nba_sim.player_info['SEASON_YEAR'] == season)
+    target_info = nba_sim.player_info[player_and_season]
 
     if target_info.empty:
         print(f"Player {player_name} not found{'' if not season else f' in season {season}'}")
@@ -153,17 +175,19 @@ def compare_methods(nba_sim):
     target_raw = nba_sim.feature_data[feature_group]['raw'][target_id]
     target_norm = nba_sim.feature_data[feature_group]['scaled'][target_id]
 
-    print("\n=== Target Player Stats ===")
+    print("\n=== Target Player Stats ===")  # user inputted player displayed first
     print(f"{player_name} ({season if season else 'all seasons'}):")
+    # round stats to two decimal places, output as Raw (Normalized)
     for stat in target_raw:
         print(f"   - {stat}: {target_raw[stat]:.2f} ({target_norm[list(target_raw.keys()).index(stat)]:.2f})")
 
-    # Run comparisons
+    # Run both methods
     comparison = {
         'knn': {'time': 0, 'results': []},
         'ann': {'time': 0, 'results': []}
     }
 
+    # time both methods
     for method in ['knn', 'ann']:
         start = time.time()
         results = nba_sim.find_similar_players(
@@ -176,11 +200,12 @@ def compare_methods(nba_sim):
         comparison[method]['time'] = time.time() - start
         comparison[method]['results'] = results
 
-    # Create sets of (player_name, season) tuples for proper comparison
+    # Create sets of (player_name, season) pairs
     knn_players = set((p['player'], p['season']) for p in comparison['knn']['results'])
     ann_players = set((p['player'], p['season']) for p in comparison['ann']['results'])
     common_players = len(knn_players & ann_players)
 
+    # print out results for both KNN and ANN
     print("\n=== Results Comparison ===")
     for method in ['knn', 'ann']:
         print(f"\n{'Exact KNN' if method == 'knn' else 'Approximate ANN'} - {comparison[method]['time']:.4f}s")
@@ -188,17 +213,18 @@ def compare_methods(nba_sim):
             print(f"{i}. {player['player']} ({player['season']}) - Similarity: {1 / (1 + player['distance']):.2f}")
             print("   Raw Stats (Normalized Stats):")
             for stat in player['raw_stats']:
-                raw_val = player['raw_stats'][stat]
-                norm_val = player['norm_stats'].get(stat, 'N/A')
-                print(f"   - {stat}: {raw_val:.2f} ({norm_val:.2f})")
+                raw_stats = player['raw_stats'][stat]
+                normalized_stats = player['norm_stats'].get(stat, 'N/A')
+                print(f"   - {stat}: {raw_stats:.2f} ({normalized_stats:.2f})")
 
+    # contrast KNN and ANN using speed and exactness (how close was ANN to exact KNN)
     print(f"\n=== Comparison Metrics ===")
-    print(f"Common players in top {k}: {common_players}/{k}")
-    print(f"Speed ratio: {comparison['knn']['time'] / comparison['ann']['time']:.1f}x faster")
-    print(f"ANN found {100 * common_players / k:.0f}% of KNN results")
+    print(f"Common players in top {k}: {common_players}/{k}")  # how many matches did ANN get to exact KNN
+    print(f"Speed ratio: {comparison['knn']['time'] / comparison['ann']['time']:.2f}x faster")  # percentage ANN faster
+    print(f"ANN found {100 * common_players / k:.2f}% of KNN results")  # percentage of exact KNN found by ANN
 
 
-def list_feature_groups(nba_sim):
+def list_feature_groups(nba_sim):  # similarity metric groups
     print("\nAvailable feature groups and their metrics:")
     for group, features in nba_sim.feature_groups.items():
         print(f"\n{group.capitalize()}:")
