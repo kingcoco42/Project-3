@@ -37,12 +37,12 @@ Change directories into where you want your project
 `cd path/to/where/you/want/you./project`
 Then run `npx create-vite`
 - When prompted, type `y` to continue
-- Choose `React` for `framework` and select `JavaScript` for `variant`
-- Enter a project name for both `Project name` and `Package name`
+- Choose `React` and select `JavaScript`
+- Enter a project name
 
 Change directories to your new file `cd your-project-name` and install dependencies `npm install`
 
-Now copy over this repo's UI files into your `src` file.
+Now replace your `src` folder's `App.css` and `App.jsx` with this repo's.
 
 Now you are ready to run it, `npm run dev` it will provide a link to http://localhost:5173/ where you can see the frontend.
 
