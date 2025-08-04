@@ -8,7 +8,7 @@ Then run `npx create-vite`
 
 Change directories to your new file `cd your-project-name` and install dependencies `npm install`
 
-Now replace your `src' folder's  'App.css' and 'App.jsx' with this repo's.
+Now replace your `src' folders  'App.css' and 'App.jsx' with this repos.
 
 Now you are ready to run it, `npm run dev` it will provide a link to http://localhost:5173/ where you can see the frontend.
 
