@@ -2,6 +2,7 @@ This is Team 69's Project 3 for COP3530 Data Structures and Algorithms at the Un
 
 # Instructions
 ## Frontend React and Vite
+First download Node.js at https://nodejs.org/en/download.
 Change directories into where you want your project
 `cd path/to/where/you/want/you./project`
 Then run `npx create-vite`
